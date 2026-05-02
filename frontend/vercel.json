@@ -1,0 +1,14 @@
+{
+  "framework": "nextjs",
+  "buildCommand": "npm run build",
+  "outputDirectory": ".next",
+  "env": {
+    "NEXTAUTH_URL": "@nextauth_url",
+    "NEXTAUTH_SECRET": "@nextauth_secret",
+    "AUTH_GOOGLE_ID": "@auth_google_id",
+    "AUTH_GOOGLE_SECRET": "@auth_google_secret",
+    "AUTH_GITHUB_ID": "@auth_github_id",
+    "AUTH_GITHUB_SECRET": "@auth_github_secret",
+    "NEXT_PUBLIC_API_URL": "@next_public_api_url"
+  }
+}
