@@ -108,7 +108,7 @@ export function TokenDrawer({ broker, open, onClose, onSubmit }: TokenDrawerProp
               type="password"
               placeholder="Paste your IBKR API token"
               value={apiToken}
-              onChange={(e) => setApiToken(e.target.value)}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setApiToken(e.target.value)}
               disabled={loading}
               autoComplete="off"
             />
