@@ -80,7 +80,7 @@ export function TokenDrawer({ broker, open, onClose, onSubmit }: TokenDrawerProp
                 type="password"
                 placeholder="Paste your Moomoo access token"
                 value={accessToken}
-                onChange={(e) => setAccessToken(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAccessToken(e.target.value)}
                 disabled={loading}
                 autoComplete="off"
               />
@@ -92,7 +92,7 @@ export function TokenDrawer({ broker, open, onClose, onSubmit }: TokenDrawerProp
                 type="text"
                 placeholder="Your Moomoo account ID"
                 value={accountId}
-                onChange={(e) => setAccountId(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setAccountId(e.target.value)}
                 disabled={loading}
                 autoComplete="off"
               />
