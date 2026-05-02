@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+.env
+*.egg-info/
+dist/
+.pytest_cache/
+.mypy_cache/
+
+# Node
+node_modules/
+.next/
+out/
+.env.local
+.env*.local
+*.tsbuildinfo
+
+# Misc
+.DS_Store
+.superpowers/
+*.log
