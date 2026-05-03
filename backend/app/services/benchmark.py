@@ -55,9 +55,10 @@ async def get_benchmark_series(symbol: str, range_: str) -> dict[str, Any]:
         except Exception:
             return []
 
-    loop = asyncio.get_event_loop()
+    loop = asyncio.get_running_loop()
     data = await loop.run_in_executor(None, _fetch)
 
     result = {"name": display_name, "data": data}
-    _cache[cache_key] = (datetime.now(timezone.utc), result)
+    if data:  # don't cache graceful-degradation empty responses
+        _cache[cache_key] = (datetime.now(timezone.utc), result)
     return result
