@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { PositionItem } from "@/lib/dashboard"
 
 interface PositionsTableProps {
@@ -44,17 +44,17 @@ function formatCompactValue(value: number, currency: string): string {
 
 function formatGain(value: number | null, currency: string): string {
   if (value === null) return "—"
-  const sign = value >= 0 ? "+" : ""
   try {
     const formatted = new Intl.NumberFormat("en-US", {
       style: "currency",
       currency,
       minimumFractionDigits: 0,
       maximumFractionDigits: 0,
+      signDisplay: "never",
     }).format(Math.abs(value))
-    return `${sign}${value < 0 ? "-" : ""}${formatted.replace(/^-/, "")}`
+    return value >= 0 ? `+${formatted}` : `-${formatted}`
   } catch {
-    return `${sign}${value.toFixed(0)} ${currency}`
+    return value >= 0 ? `+${value.toFixed(0)} ${currency}` : `-${value.toFixed(0)} ${currency}`
   }
 }
 
@@ -71,7 +71,7 @@ function gainColor(value: number | null): string {
 
 export function PositionsTable({ positions }: PositionsTableProps) {
   const currencies = Array.from(new Set(positions.map((p) => p.currency))).sort()
-  const defaultCurrency = currencies.includes("USD") ? "USD" : (currencies[0] ?? "USD")
+  const defaultCurrency = currencies.includes("USD") ? "USD" : (currencies[0] ?? "")
   const [selectedCurrency, setSelectedCurrency] = useState<string>(defaultCurrency)
 
   const filtered = positions.filter((p) => p.currency === selectedCurrency)
@@ -80,6 +80,13 @@ export function PositionsTable({ positions }: PositionsTableProps) {
     if (p.unrealized_gain === null) return acc
     return (acc ?? 0) + p.unrealized_gain
   }, null)
+
+  // Reset if the selected currency is no longer in the available list
+  useEffect(() => {
+    if (!currencies.includes(selectedCurrency)) {
+      setSelectedCurrency(currencies.includes("USD") ? "USD" : (currencies[0] ?? ""))
+    }
+  }, [currencies, selectedCurrency])
 
   return (
     <div className="flex flex-col gap-4">
@@ -103,6 +110,9 @@ export function PositionsTable({ positions }: PositionsTableProps) {
       )}
 
       <div className="overflow-x-auto">
+        {filtered.length === 0 ? (
+          <p className="text-sm text-white/40">No positions found.</p>
+        ) : (
         <table className="w-full min-w-[640px] border-collapse">
           <thead>
             <tr>
@@ -167,9 +177,6 @@ export function PositionsTable({ positions }: PositionsTableProps) {
             </tr>
           </tfoot>
         </table>
-
-        {filtered.length === 0 && (
-          <p className="py-8 text-center text-sm text-white/40">No positions for {selectedCurrency}.</p>
         )}
       </div>
     </div>
