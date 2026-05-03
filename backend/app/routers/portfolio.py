@@ -1,16 +1,18 @@
 from typing import Annotated, Literal
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import text
 
 from app.database import get_session
 from app.services.auth import get_current_user_email
 from app.services.portfolio import PortfolioService
+from app.services.benchmark import get_benchmark_series
 from app.schemas.portfolio_dashboard import (
     PortfolioSummaryResponse,
     PortfolioSnapshotsResponse,
     TransactionMarker,
     PositionItem,
+    SnapshotSeries,
 )
 
 router = APIRouter(prefix="/portfolio", tags=["portfolio"])
@@ -64,3 +66,15 @@ async def get_positions(
 ):
     user_id = await _get_user_id(email, session)
     return await PortfolioService(session).get_positions(user_id)
+
+
+@router.get("/benchmark", response_model=SnapshotSeries)
+async def get_benchmark(
+    email: Annotated[str, Depends(get_current_user_email)],
+    symbol: Literal["SPX", "HSI"] = Query(...),
+    range: RangeParam = Query(default="1M"),
+):
+    try:
+        return await get_benchmark_series(symbol=symbol, range_=range)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))

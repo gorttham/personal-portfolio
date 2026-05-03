@@ -120,6 +120,60 @@ class TestPortfolioTransactionsEndpoint:
         assert response.status_code == 200
 
 
+class TestBenchmarkEndpoint:
+    def test_get_benchmark_returns_series(self, client):
+        mock_result = {
+            "name": "S&P 500",
+            "data": [{"timestamp": "2025-01-01T00:00:00", "value": 5000.0}],
+        }
+        with patch("app.routers.portfolio.get_benchmark_series", new_callable=AsyncMock, return_value=mock_result):
+            response = client.get("/portfolio/benchmark?symbol=SPX")
+        assert response.status_code == 200
+        body = response.json()
+        assert body["name"] == "S&P 500"
+        assert isinstance(body["data"], list)
+        assert body["data"][0]["value"] == 5000.0
+
+    def test_get_benchmark_invalid_symbol_returns_422(self, client):
+        # FastAPI validates Literal["SPX", "HSI"] at query param level -> 422
+        response = client.get("/portfolio/benchmark?symbol=INVALID")
+        assert response.status_code == 422
+
+    def test_get_benchmark_value_error_returns_400(self, client):
+        with patch(
+            "app.routers.portfolio.get_benchmark_series",
+            new_callable=AsyncMock,
+            side_effect=ValueError("Unsupported benchmark symbol: XYZ"),
+        ):
+            # We have to bypass FastAPI's Literal validation to reach the ValueError path,
+            # so we call with a valid symbol but force the service to raise.
+            response = client.get("/portfolio/benchmark?symbol=SPX")
+        assert response.status_code == 400
+        assert "Unsupported" in response.json()["detail"]
+
+    def test_get_benchmark_requires_auth(self):
+        with TestClient(app) as c:
+            response = c.get("/portfolio/benchmark?symbol=SPX")
+        assert response.status_code == 401
+
+    def test_get_benchmark_missing_symbol_returns_422(self, client):
+        response = client.get("/portfolio/benchmark")
+        assert response.status_code == 422
+
+    def test_get_benchmark_accepts_range_param(self, client):
+        mock_result = {"name": "S&P 500", "data": []}
+        with patch("app.routers.portfolio.get_benchmark_series", new_callable=AsyncMock, return_value=mock_result):
+            response = client.get("/portfolio/benchmark?symbol=SPX&range=3M")
+        assert response.status_code == 200
+
+    def test_get_benchmark_hsi_symbol(self, client):
+        mock_result = {"name": "Hang Seng", "data": []}
+        with patch("app.routers.portfolio.get_benchmark_series", new_callable=AsyncMock, return_value=mock_result):
+            response = client.get("/portfolio/benchmark?symbol=HSI")
+        assert response.status_code == 200
+        assert response.json()["name"] == "Hang Seng"
+
+
 class TestPortfolioPositionsEndpoint:
     def test_get_positions_returns_list(self, client, mock_positions):
         with patch("app.routers.portfolio.PortfolioService.get_positions", new_callable=AsyncMock, return_value=mock_positions):
