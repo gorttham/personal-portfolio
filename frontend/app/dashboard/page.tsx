@@ -13,6 +13,7 @@ import {
   SnapshotSeries,
 } from "@/lib/dashboard"
 import { fetchChartData } from "./actions"
+import { DashboardChatToggle } from "@/components/dashboard/DashboardClient"
 
 function computeDailyChanges(seriesList: SnapshotSeries[]) {
   const oneDayMs = 24 * 60 * 60 * 1000
@@ -66,6 +67,7 @@ export default async function DashboardPage() {
         <div className="flex items-center justify-between">
           <h1 className="text-2xl font-bold">Dashboard</h1>
           <div className="flex items-center gap-3">
+            <DashboardChatToggle />
             {session.user.image && (
               // eslint-disable-next-line @next/next/no-img-element
               <img
