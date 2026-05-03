@@ -57,7 +57,7 @@ def mock_transactions():
 
 @pytest.fixture
 def mock_positions():
-    return [{"ticker": "AAPL", "name": "Apple Inc.", "quantity": 10.0, "avg_cost": 150.0, "current_price": 175.0, "current_value": 1750.0, "unrealized_gain": 250.0, "unrealized_gain_pct": 16.666666666666668, "currency": "USD", "asset_class": "stock", "sector": "Technology", "country": "US", "broker": "ibkr", "label_names": ["Tech"]}]
+    return [{"ticker": "AAPL", "name": "Apple Inc.", "quantity": 10.0, "avg_cost": 150.0, "current_price": 175.0, "current_value": 1750.0, "unrealized_gain": 250.0, "unrealized_gain_pct": 16.67, "currency": "USD", "asset_class": "stock", "sector": "Technology", "country": "US", "broker": "ibkr", "label_names": ["Tech"]}]
 
 
 class TestPortfolioSummaryEndpoint:
@@ -142,3 +142,7 @@ class TestPortfolioPositionsEndpoint:
         assert response.status_code == 200
         body = response.json()
         assert "unrealized_gain_pct" in body[0]
+        assert "quantity" in body[0]
+        assert "avg_cost" in body[0]
+        assert "current_price" in body[0]
+        assert "unrealized_gain" in body[0]

@@ -275,9 +275,9 @@ class PortfolioService:
             avg_cost = float(row.avg_cost) if row.avg_cost is not None else None
             current_price = float(row.current_price) if row.current_price is not None else None
             quantity = float(row.quantity) if row.quantity is not None else None
-            if avg_cost is not None and current_price is not None and quantity is not None:
+            if avg_cost is not None and avg_cost != 0 and current_price is not None and quantity is not None:
                 unrealized_gain = (current_price - avg_cost) * quantity
-                unrealized_gain_pct = (current_price - avg_cost) / avg_cost * 100
+                unrealized_gain_pct = round((current_price - avg_cost) / avg_cost * 100, 2)
             else:
                 unrealized_gain = None
                 unrealized_gain_pct = None

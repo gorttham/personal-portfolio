@@ -305,3 +305,33 @@ class TestGetPositionsPnL:
         p = positions[0]
         assert p["unrealized_gain"] is None
         assert p["unrealized_gain_pct"] is None
+
+    @pytest.mark.asyncio
+    async def test_pnl_none_when_avg_cost_zero(self, mock_session, user_id):
+        row = self._make_row(avg_cost=0.0, current_price=180.0, quantity=10)
+
+        result_mock = MagicMock()
+        result_mock.mappings.return_value.all.return_value = [row]
+        mock_session.execute = AsyncMock(return_value=result_mock)
+
+        svc = PortfolioService(mock_session)
+        positions = await svc.get_positions(user_id)
+
+        p = positions[0]
+        assert p["unrealized_gain"] is None
+        assert p["unrealized_gain_pct"] is None
+
+    @pytest.mark.asyncio
+    async def test_pnl_none_when_quantity_null(self, mock_session, user_id):
+        row = self._make_row(avg_cost=150.0, current_price=180.0, quantity=None)
+
+        result_mock = MagicMock()
+        result_mock.mappings.return_value.all.return_value = [row]
+        mock_session.execute = AsyncMock(return_value=result_mock)
+
+        svc = PortfolioService(mock_session)
+        positions = await svc.get_positions(user_id)
+
+        p = positions[0]
+        assert p["unrealized_gain"] is None
+        assert p["unrealized_gain_pct"] is None
