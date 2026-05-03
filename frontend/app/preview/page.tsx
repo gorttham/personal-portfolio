@@ -3,7 +3,7 @@ import { SummaryBar } from "@/components/dashboard/SummaryBar"
 import { PortfolioLineChart } from "@/components/dashboard/PortfolioLineChart"
 import { AllocationPieChart } from "@/components/dashboard/AllocationPieChart"
 import { PositionsTable } from "@/components/dashboard/PositionsTable"
-import type { SnapshotSeries, TransactionMarker, PositionItem } from "@/lib/dashboard"
+import type { SnapshotSeries, SnapshotRange, TransactionMarker, PositionItem } from "@/lib/dashboard"
 
 // ── Sample data ───────────────────────────────────────────────────────────────
 
@@ -68,6 +68,24 @@ async function noopFetcher() {
   return { series: SERIES, transactions: TRANSACTIONS }
 }
 
+async function noopBenchmarkFetcher(
+  symbol: "SPX" | "HSI",
+  _range: SnapshotRange
+): Promise<SnapshotSeries> {
+  "use server"
+  const spxData = Array.from({ length: 30 }, (_, i) => ({
+    timestamp: makeDate(29 - i),
+    value: 5000 + Math.round(Math.sin(i / 3.5) * 150 + i * 12),
+  }))
+  const hsiData = Array.from({ length: 30 }, (_, i) => ({
+    timestamp: makeDate(29 - i),
+    value: 19200 + Math.round(Math.sin(i / 4) * 400 + i * 25),
+  }))
+  return symbol === "SPX"
+    ? { name: "S&P 500", data: spxData }
+    : { name: "Hang Seng", data: hsiData }
+}
+
 // ── Page ─────────────────────────────────────────────────────────────────────
 
 export default function PreviewPage() {
@@ -100,6 +118,7 @@ export default function PreviewPage() {
             defaultRange="1M"
             defaultSplit="total"
             onRangeChange={noopFetcher}
+            onBenchmarkFetch={noopBenchmarkFetcher}
           />
         </section>
 
@@ -109,7 +128,7 @@ export default function PreviewPage() {
         </section>
 
         <section className="rounded-xl border border-white/8 bg-white/[0.03] p-6">
-          <h2 className="mb-4 text-lg font-semibold">Positions</h2>
+          <h2 className="mb-4 text-lg font-semibold">Positions &amp; P&L</h2>
           <PositionsTable positions={POSITIONS} />
         </section>
       </main>

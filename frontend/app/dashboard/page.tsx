@@ -12,7 +12,8 @@ import {
   fetchPositions,
   SnapshotSeries,
 } from "@/lib/dashboard"
-import { fetchChartData } from "./actions"
+import { fetchChartData, fetchBenchmarkData } from "./actions"
+import { PositionsTable } from "@/components/dashboard/PositionsTable"
 import { DashboardChatToggle } from "@/components/dashboard/DashboardClient"
 
 function computeDailyChanges(seriesList: SnapshotSeries[]) {
@@ -97,6 +98,7 @@ export default async function DashboardPage() {
             defaultRange="1M"
             defaultSplit="total"
             onRangeChange={fetchChartData}
+            onBenchmarkFetch={fetchBenchmarkData}
           />
         </section>
 
@@ -104,6 +106,12 @@ export default async function DashboardPage() {
         <section className="rounded-xl border border-white/8 bg-white/4 p-6">
           <h2 className="mb-4 text-lg font-semibold">Capital Allocation</h2>
           <AllocationPieChart positions={positions} />
+        </section>
+
+        {/* Positions table */}
+        <section className="rounded-xl border border-white/8 bg-white/[0.03] p-6">
+          <h2 className="mb-4 text-lg font-semibold">Positions &amp; P&L</h2>
+          <PositionsTable positions={positions} />
         </section>
       </main>
     </div>

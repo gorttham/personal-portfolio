@@ -164,3 +164,15 @@ export async function fetchTransactions(
 export async function fetchPositions(token: string): Promise<PositionItem[]> {
   return apiFetch<PositionItem[]>("/portfolio/positions", {}, token)
 }
+
+export async function fetchBenchmark(
+  token: string,
+  symbol: "SPX" | "HSI",
+  range: SnapshotRange,
+): Promise<SnapshotSeries> {
+  return apiFetch<SnapshotSeries>(
+    `/portfolio/benchmark?symbol=${symbol}&range=${range}`,
+    {},
+    token,
+  )
+}

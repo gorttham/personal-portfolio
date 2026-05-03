@@ -1,7 +1,7 @@
 "use server"
 
 import { auth } from "@/lib/auth"
-import { fetchSnapshots, fetchTransactions, SnapshotRange, SnapshotSplit, SnapshotSeries, TransactionMarker } from "@/lib/dashboard"
+import { fetchSnapshots, fetchTransactions, fetchBenchmark, SnapshotRange, SnapshotSplit, SnapshotSeries, TransactionMarker } from "@/lib/dashboard"
 
 export async function fetchChartData(
   range: SnapshotRange,
@@ -15,4 +15,15 @@ export async function fetchChartData(
     fetchTransactions(token, range),
   ])
   return { series: snapshots.series, transactions }
+}
+
+export async function fetchBenchmarkData(
+  symbol: "SPX" | "HSI",
+  range: SnapshotRange,
+): Promise<SnapshotSeries> {
+  "use server"
+  const session = await auth()
+  if (!session?.user) throw new Error("Not authenticated")
+  const token = (session as { backendToken?: string }).backendToken ?? ""
+  return fetchBenchmark(token, symbol, range)
 }
