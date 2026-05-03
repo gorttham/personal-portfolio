@@ -2,6 +2,7 @@ import { Sidebar } from "@/components/dashboard/Sidebar"
 import { SummaryBar } from "@/components/dashboard/SummaryBar"
 import { PortfolioLineChart } from "@/components/dashboard/PortfolioLineChart"
 import { AllocationPieChart } from "@/components/dashboard/AllocationPieChart"
+import { PositionsTable } from "@/components/dashboard/PositionsTable"
 import type { SnapshotSeries, TransactionMarker, PositionItem } from "@/lib/dashboard"
 
 // ── Sample data ───────────────────────────────────────────────────────────────
@@ -48,16 +49,16 @@ const TRANSACTIONS: TransactionMarker[] = [
 ]
 
 const POSITIONS: PositionItem[] = [
-  { ticker: "AAPL", name: "Apple Inc.", current_value: 9420, currency: "USD", asset_class: "stock", sector: "Technology", country: "US", broker: "ibkr", label_names: ["Tech"] },
-  { ticker: "NVDA", name: "NVIDIA Corp.", current_value: 12650, currency: "USD", asset_class: "stock", sector: "Technology", country: "US", broker: "ibkr", label_names: ["Tech", "AI"] },
-  { ticker: "BRK.B", name: "Berkshire Hathaway", current_value: 8100, currency: "USD", asset_class: "stock", sector: "Financials", country: "US", broker: "ibkr", label_names: [] },
-  { ticker: "GLD", name: "SPDR Gold ETF", current_value: 7200, currency: "USD", asset_class: "etf", sector: null, country: "US", broker: "ibkr", label_names: ["Safe Haven"] },
-  { ticker: "TMUS", name: "T-Mobile US", current_value: 5880, currency: "USD", asset_class: "stock", sector: "Telecom", country: "US", broker: "ibkr", label_names: [] },
-  { ticker: "700", name: "Tencent Holdings", current_value: 98500, currency: "HKD", asset_class: "stock", sector: "Technology", country: "CN", broker: "longbridge", label_names: ["Tech"] },
-  { ticker: "9988", name: "Alibaba Group", current_value: 72000, currency: "HKD", asset_class: "stock", sector: "Consumer Cyclical", country: "CN", broker: "longbridge", label_names: [] },
-  { ticker: "1299", name: "AIA Group", current_value: 55000, currency: "HKD", asset_class: "stock", sector: "Financials", country: "HK", broker: "longbridge", label_names: ["Dividend"] },
-  { ticker: "2318", name: "Ping An Insurance", current_value: 48000, currency: "HKD", asset_class: "stock", sector: "Financials", country: "CN", broker: "longbridge", label_names: ["Dividend"] },
-  { ticker: "9618", name: "JD.com", current_value: 38500, currency: "HKD", asset_class: "stock", sector: "Consumer Cyclical", country: "CN", broker: "longbridge", label_names: [] },
+  { ticker: "AAPL", name: "Apple Inc.", quantity: 52, avg_cost: 155.20, current_price: 181.10, current_value: 9420, unrealized_gain: 1346.8, unrealized_gain_pct: 16.69, currency: "USD", asset_class: "stock", sector: "Technology", country: "US", broker: "ibkr", label_names: ["Tech"] },
+  { ticker: "NVDA", name: "NVIDIA Corp.", quantity: 14, avg_cost: 850.0, current_price: 903.50, current_value: 12650, unrealized_gain: 749.0, unrealized_gain_pct: 6.29, currency: "USD", asset_class: "stock", sector: "Technology", country: "US", broker: "ibkr", label_names: ["Tech", "AI"] },
+  { ticker: "BRK.B", name: "Berkshire Hathaway", quantity: 30, avg_cost: 255.0, current_price: 270.0, current_value: 8100, unrealized_gain: 450.0, unrealized_gain_pct: 5.88, currency: "USD", asset_class: "stock", sector: "Financials", country: "US", broker: "ibkr", label_names: [] },
+  { ticker: "GLD", name: "SPDR Gold ETF", quantity: 45, avg_cost: null, current_price: null, current_value: 7200, unrealized_gain: null, unrealized_gain_pct: null, currency: "USD", asset_class: "etf", sector: null, country: "US", broker: "ibkr", label_names: ["Safe Haven"] },
+  { ticker: "TMUS", name: "T-Mobile US", quantity: 48, avg_cost: 135.0, current_price: 122.50, current_value: 5880, unrealized_gain: -600.0, unrealized_gain_pct: -9.26, currency: "USD", asset_class: "stock", sector: "Telecom", country: "US", broker: "ibkr", label_names: [] },
+  { ticker: "700", name: "Tencent Holdings", quantity: 300, avg_cost: 310.0, current_price: 328.33, current_value: 98500, unrealized_gain: 5500.0, unrealized_gain_pct: 5.91, currency: "HKD", asset_class: "stock", sector: "Technology", country: "CN", broker: "longbridge", label_names: ["Tech"] },
+  { ticker: "9988", name: "Alibaba Group", quantity: 600, avg_cost: 112.0, current_price: 120.0, current_value: 72000, unrealized_gain: 4800.0, unrealized_gain_pct: 7.14, currency: "HKD", asset_class: "stock", sector: "Consumer Cyclical", country: "CN", broker: "longbridge", label_names: [] },
+  { ticker: "1299", name: "AIA Group", quantity: 1200, avg_cost: 48.0, current_price: 45.83, current_value: 55000, unrealized_gain: -2600.0, unrealized_gain_pct: -4.52, currency: "HKD", asset_class: "stock", sector: "Financials", country: "HK", broker: "longbridge", label_names: ["Dividend"] },
+  { ticker: "2318", name: "Ping An Insurance", quantity: 800, avg_cost: 58.0, current_price: 60.0, current_value: 48000, unrealized_gain: 1600.0, unrealized_gain_pct: 3.45, currency: "HKD", asset_class: "stock", sector: "Financials", country: "CN", broker: "longbridge", label_names: ["Dividend"] },
+  { ticker: "9618", name: "JD.com", quantity: 400, avg_cost: 90.0, current_price: 96.25, current_value: 38500, unrealized_gain: 2500.0, unrealized_gain_pct: 6.94, currency: "HKD", asset_class: "stock", sector: "Consumer Cyclical", country: "CN", broker: "longbridge", label_names: [] },
 ]
 
 // ── No-op chart fetcher for preview (returns same data) ───────────────────────
@@ -105,6 +106,11 @@ export default function PreviewPage() {
         <section className="rounded-xl border border-white/8 bg-white/[0.03] p-6">
           <h2 className="mb-4 text-lg font-semibold">Capital Allocation</h2>
           <AllocationPieChart positions={POSITIONS} />
+        </section>
+
+        <section className="rounded-xl border border-white/8 bg-white/[0.03] p-6">
+          <h2 className="mb-4 text-lg font-semibold">Positions</h2>
+          <PositionsTable positions={POSITIONS} />
         </section>
       </main>
     </div>

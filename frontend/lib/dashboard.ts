@@ -42,7 +42,12 @@ export interface TransactionMarker {
 export interface PositionItem {
   ticker: string
   name: string
+  quantity: number | null
+  avg_cost: number | null
+  current_price: number | null
   current_value: number
+  unrealized_gain: number | null
+  unrealized_gain_pct: number | null
   currency: string
   asset_class: string
   sector: string | null
