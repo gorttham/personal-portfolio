@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { apiFetch } from "@/lib/api"
+import { apiFetchRaw } from "@/lib/api"
 import { BrokerCard } from "@/components/connect/BrokerCard"
 
 interface BrokerConnection {
@@ -39,7 +39,7 @@ export function ConnectPageClient({ backendToken }: ConnectPageClientProps) {
     setLoading(true)
     setFetchError(null)
     try {
-      const res = await apiFetch("/brokerages", backendToken)
+      const res = await apiFetchRaw("/brokerages", backendToken)
       if (!res.ok) {
         throw new Error(`Failed to load connections (${res.status})`)
       }
@@ -58,7 +58,7 @@ export function ConnectPageClient({ backendToken }: ConnectPageClientProps) {
   }, [])
 
   async function handleConnect(broker: string, credentials: string) {
-    const res = await apiFetch("/brokerages/connect", backendToken, {
+    const res = await apiFetchRaw("/brokerages/connect", backendToken, {
       method: "POST",
       body: JSON.stringify({ broker, credentials }),
     })
