@@ -44,6 +44,13 @@ const SPLITS: { value: SnapshotSplit; label: string }[] = [
   { value: "stock", label: "By Stock" },
 ]
 
+const BENCHMARK_LABELS: Record<"SPX" | "HSI", string> = {
+  SPX: "S&P 500",
+  HSI: "Hang Seng",
+}
+
+const BENCHMARK_COLORS = ["rgba(255,255,255,0.45)", "rgba(251,191,36,0.45)"]
+
 interface MarkerShapeProps {
   cx?: number
   cy?: number
@@ -69,6 +76,7 @@ interface PortfolioLineChartProps {
     series: SnapshotSeries[]
     transactions: TransactionMarker[]
   }>
+  onBenchmarkFetch?: (symbol: "SPX" | "HSI", range: SnapshotRange) => Promise<SnapshotSeries>
 }
 
 export function PortfolioLineChart({
@@ -77,6 +85,7 @@ export function PortfolioLineChart({
   defaultRange = "1M",
   defaultSplit = "total",
   onRangeChange,
+  onBenchmarkFetch,
 }: PortfolioLineChartProps) {
   const [series, setSeries] = useState<SnapshotSeries[]>(initialSeries)
   const [transactions, setTransactions] = useState<TransactionMarker[]>(initialTransactions)
@@ -84,10 +93,15 @@ export function PortfolioLineChart({
   const [split, setSplit] = useState<SnapshotSplit>(defaultSplit)
   const [yMode, setYMode] = useState<"absolute" | "percent">("absolute")
   const [loading, setLoading] = useState(false)
+  const [activeBenchmarks, setActiveBenchmarks] = useState<Set<"SPX" | "HSI">>(new Set())
+  const [benchmarkCache, setBenchmarkCache] = useState<Map<string, SnapshotSeries>>(new Map())
+  const [benchmarkLoading, setBenchmarkLoading] = useState(false)
 
   const handleControlChange = useCallback(
     async (newRange: SnapshotRange, newSplit: SnapshotSplit) => {
       setLoading(true)
+      setActiveBenchmarks(new Set())
+      setBenchmarkCache(new Map())
       try {
         const result = await onRangeChange(newRange, newSplit)
         setSeries(result.series)
@@ -101,20 +115,57 @@ export function PortfolioLineChart({
     [onRangeChange],
   )
 
+  const handleBenchmarkToggle = useCallback(async (symbol: "SPX" | "HSI") => {
+    if (!onBenchmarkFetch) return
+    const cacheKey = `${symbol}:${range}`
+    const next = new Set(activeBenchmarks)
+
+    if (next.has(symbol)) {
+      next.delete(symbol)
+      setActiveBenchmarks(next)
+      return
+    }
+
+    next.add(symbol)
+    setActiveBenchmarks(next)
+
+    if (!benchmarkCache.has(cacheKey)) {
+      setBenchmarkLoading(true)
+      try {
+        const result = await onBenchmarkFetch(symbol, range)
+        setBenchmarkCache(prev => new Map(prev).set(cacheKey, result))
+      } finally {
+        setBenchmarkLoading(false)
+      }
+    }
+  }, [activeBenchmarks, benchmarkCache, range, onBenchmarkFetch])
+
   const activeSeries = series.map((s) => ({
     ...s,
     data: yMode === "percent" ? normalizeToPercent(s.data) : s.data,
   }))
 
+  const benchmarkDisplaySeries = yMode === "percent"
+    ? Array.from(activeBenchmarks)
+        .map(sym => {
+          const cacheKey = `${sym}:${range}`
+          const s = benchmarkCache.get(cacheKey)
+          return s ? { ...s, name: BENCHMARK_LABELS[sym] } : null
+        })
+        .filter(Boolean) as SnapshotSeries[]
+    : []
+
+  const allSeries = [...activeSeries, ...benchmarkDisplaySeries]
+
   const timestampSet = new Set<string>()
-  for (const s of activeSeries) {
+  for (const s of allSeries) {
     for (const pt of s.data) timestampSet.add(pt.timestamp)
   }
   const sortedTimestamps = Array.from(timestampSet).sort()
 
   const chartData = sortedTimestamps.map((ts) => {
     const point: Record<string, number | string> = { timestamp: ts }
-    for (const s of activeSeries) {
+    for (const s of allSeries) {
       const match = s.data.find((d) => d.timestamp === ts)
       if (match !== undefined) point[s.name] = match.value
     }
@@ -191,6 +242,27 @@ export function PortfolioLineChart({
             </button>
           ))}
         </div>
+
+        {onBenchmarkFetch && (
+          <div className="flex items-center gap-1.5">
+            <span className="text-xs text-white/30">vs</span>
+            {(["SPX", "HSI"] as const).map(sym => (
+              <button
+                key={sym}
+                onClick={() => handleBenchmarkToggle(sym)}
+                disabled={yMode === "absolute" || loading || benchmarkLoading}
+                title={yMode === "absolute" ? "Switch to % mode to compare benchmarks" : undefined}
+                className={`px-2 py-1 text-xs rounded border transition-colors ${
+                  activeBenchmarks.has(sym) && yMode === "percent"
+                    ? "border-white/30 bg-white/10 text-white/60"
+                    : "border-white/10 text-white/30 hover:text-white/50 disabled:opacity-30 disabled:cursor-not-allowed"
+                }`}
+              >
+                {sym}
+              </button>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className={`h-80 transition-opacity ${loading ? "opacity-40" : ""}`}>
@@ -238,6 +310,18 @@ export function PortfolioLineChart({
                 stroke={colorForIndex(i)}
                 dot={false}
                 strokeWidth={2}
+                connectNulls
+              />
+            ))}
+            {benchmarkDisplaySeries.map((s, i) => (
+              <Line
+                key={`bm-${s.name}`}
+                type="monotone"
+                dataKey={s.name}
+                stroke={BENCHMARK_COLORS[i % BENCHMARK_COLORS.length]}
+                dot={false}
+                strokeWidth={1.5}
+                strokeDasharray="5 5"
                 connectNulls
               />
             ))}
