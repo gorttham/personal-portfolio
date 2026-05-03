@@ -22,7 +22,9 @@
     "@radix-ui/react-dialog": "^1.1.2",
     "@radix-ui/react-label": "^2.1.0",
     "@radix-ui/react-separator": "^1.1.0",
-    "@radix-ui/react-slot": "^1.1.0"
+    "@radix-ui/react-select": "^2.1.2",
+    "@radix-ui/react-slot": "^1.1.0",
+    "date-fns": "^3.6.0"
   },
   "devDependencies": {
     "tailwindcss": "^3.4.13",

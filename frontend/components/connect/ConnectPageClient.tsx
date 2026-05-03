@@ -70,7 +70,7 @@ export function ConnectPageClient({ backendToken }: ConnectPageClientProps) {
   }
 
   async function handleDisconnect(id: string) {
-    const res = await apiFetch(`/brokerages/${id}`, backendToken, {
+    const res = await apiFetchRaw(`/brokerages/${id}`, backendToken, {
       method: "DELETE",
     })
     if (!res.ok) {
