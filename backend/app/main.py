@@ -2,6 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import auth, brokerages, sync
 from app.routers import portfolio as portfolio_router
+from app.routers import ai as ai_router
 import os
 
 app = FastAPI(title="Portfolio Tracker API")
@@ -18,6 +19,7 @@ app.include_router(auth.router, prefix="/auth", tags=["auth"])
 app.include_router(brokerages.router, prefix="/brokerages", tags=["brokerages"])
 app.include_router(sync.router, prefix="/sync", tags=["sync"])
 app.include_router(portfolio_router.router)
+app.include_router(ai_router.router, prefix="/ai", tags=["ai"])
 
 
 @app.get("/health")
