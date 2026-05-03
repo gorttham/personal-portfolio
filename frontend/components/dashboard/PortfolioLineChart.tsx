@@ -102,6 +102,7 @@ export function PortfolioLineChart({
       setLoading(true)
       setActiveBenchmarks(new Set())
       setBenchmarkCache(new Map())
+      setBenchmarkLoading(false)
       try {
         const result = await onRangeChange(newRange, newSplit)
         setSeries(result.series)
@@ -126,17 +127,17 @@ export function PortfolioLineChart({
       return
     }
 
-    next.add(symbol)
-    setActiveBenchmarks(next)
-
     if (!benchmarkCache.has(cacheKey)) {
       setBenchmarkLoading(true)
       try {
         const result = await onBenchmarkFetch(symbol, range)
         setBenchmarkCache(prev => new Map(prev).set(cacheKey, result))
+        setActiveBenchmarks(prev => new Set(prev).add(symbol))
       } finally {
         setBenchmarkLoading(false)
       }
+    } else {
+      setActiveBenchmarks(prev => new Set(prev).add(symbol))
     }
   }, [activeBenchmarks, benchmarkCache, range, onBenchmarkFetch])
 
