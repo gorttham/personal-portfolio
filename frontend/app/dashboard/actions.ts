@@ -21,7 +21,6 @@ export async function fetchBenchmarkData(
   symbol: "SPX" | "HSI",
   range: SnapshotRange,
 ): Promise<SnapshotSeries> {
-  "use server"
   const session = await auth()
   if (!session?.user) throw new Error("Not authenticated")
   const token = (session as { backendToken?: string }).backendToken ?? ""
