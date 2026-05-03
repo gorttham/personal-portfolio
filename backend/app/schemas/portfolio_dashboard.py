@@ -42,7 +42,12 @@ class TransactionMarker(BaseModel):
 class PositionItem(BaseModel):
     ticker: str
     name: str
+    quantity: Optional[float] = None
+    avg_cost: Optional[float] = None
+    current_price: Optional[float] = None
     current_value: float
+    unrealized_gain: Optional[float] = None
+    unrealized_gain_pct: Optional[float] = None
     currency: str
     asset_class: str
     sector: Optional[str]

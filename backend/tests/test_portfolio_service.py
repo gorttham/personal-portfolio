@@ -197,6 +197,9 @@ class TestGetPositions:
         row.ticker = "AAPL"
         row.name = "Apple Inc."
         row.current_value = 1750.0
+        row.quantity = 10.0
+        row.avg_cost = 150.0
+        row.current_price = 175.0
         row.currency = "USD"
         row.asset_class = "stock"
         row.sector = "Technology"
@@ -222,6 +225,9 @@ class TestGetPositions:
         row.ticker = "700"
         row.name = "Tencent"
         row.current_value = 5000.0
+        row.quantity = 100.0
+        row.avg_cost = 45.0
+        row.current_price = 50.0
         row.currency = "HKD"
         row.asset_class = "stock"
         row.sector = None
@@ -236,3 +242,66 @@ class TestGetPositions:
         svc = PortfolioService(mock_session)
         positions = await svc.get_positions(user_id)
         assert positions[0]["label_names"] == []
+
+
+class TestGetPositionsPnL:
+    def _make_row(self, avg_cost, current_price, quantity):
+        row = MagicMock()
+        row.ticker = "AAPL"
+        row.name = "Apple Inc."
+        row.current_value = 1800.0
+        row.avg_cost = avg_cost
+        row.current_price = current_price
+        row.quantity = quantity
+        row.currency = "USD"
+        row.asset_class = "stock"
+        row.sector = "Technology"
+        row.country = "US"
+        row.broker = "ibkr"
+        row.label_names = []
+        return row
+
+    @pytest.mark.asyncio
+    async def test_pnl_calculated_when_avg_cost_present(self, mock_session, user_id):
+        row = self._make_row(avg_cost=150.0, current_price=180.0, quantity=10)
+
+        result_mock = MagicMock()
+        result_mock.mappings.return_value.all.return_value = [row]
+        mock_session.execute = AsyncMock(return_value=result_mock)
+
+        svc = PortfolioService(mock_session)
+        positions = await svc.get_positions(user_id)
+
+        p = positions[0]
+        assert abs(p["unrealized_gain"] - 300.0) < 0.01
+        assert abs(p["unrealized_gain_pct"] - 20.0) < 0.01
+
+    @pytest.mark.asyncio
+    async def test_pnl_none_when_avg_cost_null(self, mock_session, user_id):
+        row = self._make_row(avg_cost=None, current_price=180.0, quantity=10)
+
+        result_mock = MagicMock()
+        result_mock.mappings.return_value.all.return_value = [row]
+        mock_session.execute = AsyncMock(return_value=result_mock)
+
+        svc = PortfolioService(mock_session)
+        positions = await svc.get_positions(user_id)
+
+        p = positions[0]
+        assert p["unrealized_gain"] is None
+        assert p["unrealized_gain_pct"] is None
+
+    @pytest.mark.asyncio
+    async def test_pnl_none_when_current_price_null(self, mock_session, user_id):
+        row = self._make_row(avg_cost=150.0, current_price=None, quantity=10)
+
+        result_mock = MagicMock()
+        result_mock.mappings.return_value.all.return_value = [row]
+        mock_session.execute = AsyncMock(return_value=result_mock)
+
+        svc = PortfolioService(mock_session)
+        positions = await svc.get_positions(user_id)
+
+        p = positions[0]
+        assert p["unrealized_gain"] is None
+        assert p["unrealized_gain_pct"] is None

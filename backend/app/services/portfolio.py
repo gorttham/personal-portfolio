@@ -244,6 +244,9 @@ class PortfolioService:
                 pos.ticker,
                 pos.name,
                 pos.current_value,
+                pos.quantity,
+                pos.avg_cost,
+                pos.current_price,
                 a.currency,
                 pos.asset_class,
                 pos.sector,
@@ -260,23 +263,38 @@ class PortfolioService:
             LEFT JOIN asset_labels al ON al.id = ala.label_id
             WHERE bc.user_id = :user_id
             GROUP BY pos.id, pos.ticker, pos.name, pos.current_value,
+                     pos.quantity, pos.avg_cost, pos.current_price,
                      a.currency, pos.asset_class, pos.sector, pos.country, bc.broker
             ORDER BY pos.ticker
         """)
         result = await self.session.execute(sql, {"user_id": user_id})
         rows = result.mappings().all()
 
-        return [
-            {
+        results = []
+        for row in rows:
+            avg_cost = float(row.avg_cost) if row.avg_cost is not None else None
+            current_price = float(row.current_price) if row.current_price is not None else None
+            quantity = float(row.quantity) if row.quantity is not None else None
+            if avg_cost is not None and current_price is not None and quantity is not None:
+                unrealized_gain = (current_price - avg_cost) * quantity
+                unrealized_gain_pct = (current_price - avg_cost) / avg_cost * 100
+            else:
+                unrealized_gain = None
+                unrealized_gain_pct = None
+            results.append({
                 "ticker": row.ticker,
                 "name": row.name,
+                "quantity": quantity,
+                "avg_cost": avg_cost,
+                "current_price": current_price,
                 "current_value": float(row.current_value),
+                "unrealized_gain": unrealized_gain,
+                "unrealized_gain_pct": unrealized_gain_pct,
                 "currency": row.currency,
                 "asset_class": row.asset_class,
                 "sector": row.sector,
                 "country": row.country,
                 "broker": str(row.broker),
                 "label_names": list(row.label_names) if row.label_names else [],
-            }
-            for row in rows
-        ]
+            })
+        return results
