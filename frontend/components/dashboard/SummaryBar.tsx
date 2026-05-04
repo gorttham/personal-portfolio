@@ -47,14 +47,14 @@ export function SummaryBar({ accounts, lastSyncedAt, dailyChanges }: SummaryBarP
   const currencies = Object.entries(byCurrency).sort(([a], [b]) => a.localeCompare(b))
 
   return (
-    <div className="flex flex-wrap items-center gap-6 rounded-lg border border-white/8 bg-white/4 px-6 py-4">
+    <div className="flex flex-wrap items-center gap-6 rounded-lg border border-black/8 dark:border-white/8 bg-[var(--surface)] px-6 py-4">
       {currencies.map(([currency, total]) => {
         const change = dailyChanges.find((d) => d.currency === currency)
         const isPositive = !change || change.change_abs >= 0
         return (
           <div key={currency} className="flex flex-col">
-            <span className="text-xs text-white/50">{currency} Total</span>
-            <span className="text-xl font-semibold tabular-nums text-white">
+            <span className="text-xs text-black/50 dark:text-white/50">{currency} Total</span>
+            <span className="text-xl font-semibold tabular-nums text-black dark:text-white">
               {formatCurrency(total, currency)}
             </span>
             {change && (
@@ -83,7 +83,7 @@ export function SummaryBar({ accounts, lastSyncedAt, dailyChanges }: SummaryBarP
           {lastSyncedAt ? "Synced" : "Never synced"}
         </div>
         {lastSyncedAt && (
-          <span className="text-xs text-white/40">
+          <span className="text-xs text-black/40 dark:text-white/40">
             Last synced {formatSyncAge(lastSyncedAt)}
           </span>
         )}

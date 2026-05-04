@@ -4,6 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { cn } from "@/lib/utils"
 import { LayoutDashboard, Link2, Tag, Bot } from "lucide-react"
+import { ThemeToggle } from "@/components/ThemeToggle"
 
 interface NavItem {
   href: string
@@ -22,8 +23,8 @@ export function Sidebar() {
   const pathname = usePathname()
 
   return (
-    <aside className="flex h-full w-56 flex-col gap-1 border-r border-white/10 bg-[#0a0a0f] px-3 py-6">
-      <p className="mb-4 px-3 text-xs font-semibold uppercase tracking-widest text-white/40">
+    <aside className="flex h-full w-56 flex-col gap-1 border-r border-black/10 dark:border-white/10 bg-[var(--background)] px-3 py-6">
+      <p className="mb-4 px-3 text-xs font-semibold uppercase tracking-widest text-black/40 dark:text-white/40">
         Portfolio
       </p>
       {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
@@ -36,7 +37,7 @@ export function Sidebar() {
               "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
               active
                 ? "bg-[#6366f1] text-white"
-                : "text-white/60 hover:bg-white/5 hover:text-white",
+                : "text-black/60 hover:bg-black/5 hover:text-black dark:text-white/60 dark:hover:bg-white/5 dark:hover:text-white",
             )}
           >
             <Icon className="h-4 w-4 shrink-0" />
@@ -44,6 +45,9 @@ export function Sidebar() {
           </Link>
         )
       })}
+      <div className="mt-auto px-1">
+        <ThemeToggle />
+      </div>
     </aside>
   )
 }

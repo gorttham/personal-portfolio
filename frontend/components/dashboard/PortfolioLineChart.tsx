@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useCallback } from "react"
+import { useTheme } from "next-themes"
 import {
   ComposedChart,
   Line,
@@ -96,6 +97,13 @@ export function PortfolioLineChart({
   const [activeBenchmarks, setActiveBenchmarks] = useState<Set<"SPX" | "HSI">>(new Set())
   const [benchmarkCache, setBenchmarkCache] = useState<Map<string, SnapshotSeries>>(new Map())
   const [benchmarkLoading, setBenchmarkLoading] = useState(false)
+
+  const { resolvedTheme } = useTheme()
+  const isDark = resolvedTheme !== "light"
+  const gridColor = isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.06)"
+  const tickColor = isDark ? "rgba(255,255,255,0.4)" : "rgba(0,0,0,0.4)"
+  const tooltipBg = isDark ? "#0a0a0f" : "#ffffff"
+  const tooltipBorder = isDark ? "rgba(255,255,255,0.1)" : "rgba(0,0,0,0.1)"
 
   const handleControlChange = useCallback(
     async (newRange: SnapshotRange, newSplit: SnapshotSplit) => {
@@ -198,7 +206,7 @@ export function PortfolioLineChart({
   return (
     <div className="flex flex-col gap-4">
       <div className="flex flex-wrap items-center gap-3">
-        <div className="flex rounded-md border border-white/10">
+        <div className="flex rounded-md border border-black/10 dark:border-white/10">
           {RANGES.map((r) => (
             <button
               key={r.value}
@@ -207,7 +215,7 @@ export function PortfolioLineChart({
               className={`px-3 py-1 text-sm transition-colors first:rounded-l-md last:rounded-r-md ${
                 range === r.value
                   ? "bg-[#6366f1] text-white"
-                  : "text-white/50 hover:bg-white/5"
+                  : "text-black/50 dark:text-white/50 hover:bg-black/5 dark:hover:bg-white/5"
               }`}
             >
               {r.label}
@@ -230,13 +238,13 @@ export function PortfolioLineChart({
           </SelectContent>
         </Select>
 
-        <div className="ml-auto flex rounded-md border border-white/10">
+        <div className="ml-auto flex rounded-md border border-black/10 dark:border-white/10">
           {(["absolute", "percent"] as const).map((mode) => (
             <button
               key={mode}
               onClick={() => setYMode(mode)}
               className={`px-3 py-1 text-sm first:rounded-l-md last:rounded-r-md ${
-                yMode === mode ? "bg-[#6366f1] text-white" : "text-white/50 hover:bg-white/5"
+                yMode === mode ? "bg-[#6366f1] text-white" : "text-black/50 dark:text-white/50 hover:bg-black/5 dark:hover:bg-white/5"
               }`}
             >
               {mode === "absolute" ? "$" : "%"}
@@ -246,7 +254,7 @@ export function PortfolioLineChart({
 
         {onBenchmarkFetch && (
           <div className="flex items-center gap-1.5">
-            <span className="text-xs text-white/30">vs</span>
+            <span className="text-xs text-black/30 dark:text-white/30">vs</span>
             {(["SPX", "HSI"] as const).map(sym => (
               <button
                 key={sym}
@@ -269,16 +277,16 @@ export function PortfolioLineChart({
       <div className={`h-80 transition-opacity ${loading ? "opacity-40" : ""}`}>
         <ResponsiveContainer width="100%" height="100%">
           <ComposedChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" />
+            <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
             <XAxis
               dataKey="timestamp"
               tickFormatter={formatDate}
-              tick={{ fontSize: 11, fill: "rgba(255,255,255,0.4)" }}
+              tick={{ fontSize: 11, fill: tickColor }}
               axisLine={false}
               tickLine={false}
             />
             <YAxis
-              tick={{ fontSize: 11, fill: "rgba(255,255,255,0.4)" }}
+              tick={{ fontSize: 11, fill: tickColor }}
               tickFormatter={formatValue}
               axisLine={false}
               tickLine={false}
@@ -286,10 +294,11 @@ export function PortfolioLineChart({
             />
             <Tooltip
               contentStyle={{
-                background: "#0a0a0f",
-                border: "1px solid rgba(255,255,255,0.1)",
+                background: tooltipBg,
+                border: `1px solid ${tooltipBorder}`,
                 borderRadius: "8px",
                 fontSize: "12px",
+                color: isDark ? "#ffffff" : "#0f172a",
               }}
               labelFormatter={(v: string) => {
                 try { return new Date(v).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" }) }

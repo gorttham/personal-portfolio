@@ -90,7 +90,7 @@ async function noopBenchmarkFetcher(
 
 export default function PreviewPage() {
   return (
-    <div className="flex h-screen overflow-hidden bg-[#0a0a0f] text-white">
+    <div className="flex h-screen overflow-hidden bg-[var(--background)] text-[var(--text-primary)]">
       <Sidebar />
       <main className="flex flex-1 flex-col gap-6 overflow-y-auto p-6">
         <div className="flex items-center justify-between">
@@ -110,7 +110,7 @@ export default function PreviewPage() {
           dailyChanges={DAILY_CHANGES}
         />
 
-        <section className="rounded-xl border border-white/8 bg-white/[0.03] p-6">
+        <section className="rounded-xl border border-black/8 dark:border-white/8 bg-[var(--surface)] p-6">
           <h2 className="mb-4 text-lg font-semibold">Portfolio Performance</h2>
           <PortfolioLineChart
             initialSeries={SERIES}
@@ -122,12 +122,12 @@ export default function PreviewPage() {
           />
         </section>
 
-        <section className="rounded-xl border border-white/8 bg-white/[0.03] p-6">
+        <section className="rounded-xl border border-black/8 dark:border-white/8 bg-[var(--surface)] p-6">
           <h2 className="mb-4 text-lg font-semibold">Capital Allocation</h2>
           <AllocationPieChart positions={POSITIONS} />
         </section>
 
-        <section className="rounded-xl border border-white/8 bg-white/[0.03] p-6">
+        <section className="rounded-xl border border-black/8 dark:border-white/8 bg-[var(--surface)] p-6">
           <h2 className="mb-4 text-lg font-semibold">Positions &amp; P&L</h2>
           <PositionsTable positions={POSITIONS} />
         </section>

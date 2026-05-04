@@ -60,7 +60,7 @@ export default async function DashboardPage() {
   const dailyChanges = computeDailyChanges(snapshots.series)
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#0a0a0f] text-white">
+    <div className="flex h-screen overflow-hidden bg-[var(--background)] text-[var(--text-primary)]">
       <Sidebar />
 
       <main className="flex flex-1 flex-col gap-6 overflow-y-auto p-6">
@@ -90,7 +90,7 @@ export default async function DashboardPage() {
         />
 
         {/* Line chart */}
-        <section className="rounded-xl border border-white/8 bg-white/4 p-6">
+        <section className="rounded-xl border border-black/8 dark:border-white/8 bg-[var(--surface)] p-6">
           <h2 className="mb-4 text-lg font-semibold">Portfolio Performance</h2>
           <PortfolioLineChart
             initialSeries={snapshots.series}
@@ -103,13 +103,13 @@ export default async function DashboardPage() {
         </section>
 
         {/* Pie chart */}
-        <section className="rounded-xl border border-white/8 bg-white/4 p-6">
+        <section className="rounded-xl border border-black/8 dark:border-white/8 bg-[var(--surface)] p-6">
           <h2 className="mb-4 text-lg font-semibold">Capital Allocation</h2>
           <AllocationPieChart positions={positions} />
         </section>
 
         {/* Positions table */}
-        <section className="rounded-xl border border-white/8 bg-white/[0.03] p-6">
+        <section className="rounded-xl border border-black/8 dark:border-white/8 bg-[var(--surface)] p-6">
           <h2 className="mb-4 text-lg font-semibold">Positions &amp; P&L</h2>
           <PositionsTable positions={positions} />
         </section>
