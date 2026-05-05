@@ -1,11 +1,16 @@
 from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from decimal import Decimal
-from longbridge.openapi import TradeContext, Config
 from app.adapters.base import (
     BrokerageAdapter, AdapterAccount, AdapterPosition,
     AdapterTransaction, AdapterBalance, TransactionType
 )
+
+try:
+    from longbridge.openapi import TradeContext, Config
+except ImportError:
+    TradeContext = None  # type: ignore[assignment]
+    Config = None  # type: ignore[assignment]
 
 
 class LongbridgeAdapter(BrokerageAdapter):
@@ -14,6 +19,8 @@ class LongbridgeAdapter(BrokerageAdapter):
 
     @asynccontextmanager
     async def _get_trade_context(self):
+        if Config is None:
+            raise RuntimeError("longbridge package not installed")
         config = Config(
             app_key=self._creds["app_key"],
             app_secret=self._creds["app_secret"],

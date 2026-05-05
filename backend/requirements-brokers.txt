@@ -1,0 +1,4 @@
+# Optional brokerage SDK packages — install only if you use those brokers
+# pip install -r requirements-brokers.txt
+longbridge==4.0.5
+futu-api
