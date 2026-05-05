@@ -1,4 +1,4 @@
 # Optional brokerage SDK packages — install only if you use those brokers
 # pip install -r requirements-brokers.txt
-longport
+longport==3.0.23
 futu-api

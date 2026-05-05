@@ -7,7 +7,7 @@ from app.adapters.base import (
 )
 
 try:
-    from longbridge.openapi import TradeContext, Config
+    from longport.openapi import TradeContext, Config
 except ImportError:
     TradeContext = None  # type: ignore[assignment]
     Config = None  # type: ignore[assignment]
