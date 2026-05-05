@@ -5,19 +5,22 @@ set -e
 trap 'kill $(jobs -p) 2>/dev/null' EXIT
 
 echo "▶ Starting backend..."
-cd backend
-python -m venv .venv 2>/dev/null || true
+cd "$(dirname "$0")/backend"
+
+if [ ! -d ".venv" ]; then
+  echo "  Creating Python virtual environment..."
+  python3 -m venv .venv
+fi
+
 source .venv/bin/activate
 pip install -r requirements.txt -q
 alembic upgrade head
 uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload &
-BACKEND_PID=$!
 
 echo "▶ Starting frontend..."
 cd ../frontend
 npm install -q
 npm run dev &
-FRONTEND_PID=$!
 
 echo ""
 echo "✓ Backend:  http://localhost:8000"
