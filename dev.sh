@@ -9,7 +9,8 @@ cd "$(dirname "$0")/backend"
 
 if [ ! -d ".venv" ]; then
   echo "  Creating Python virtual environment..."
-  python3 -m venv .venv
+  PYTHON=$(command -v python3.12 || command -v python3.11 || command -v python3)
+  "$PYTHON" -m venv .venv
 fi
 
 source .venv/bin/activate
