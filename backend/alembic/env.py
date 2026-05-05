@@ -4,11 +4,13 @@ from logging.config import fileConfig
 from sqlalchemy import pool
 from sqlalchemy.ext.asyncio import async_engine_from_config
 from alembic import context
-from app.database import Base
+from app.database import Base, _fix_asyncpg_url
 from app.models import tables  # noqa: F401 — registers all models
 
 config = context.config
-config.set_main_option("sqlalchemy.url", os.getenv("DATABASE_URL", "postgresql+asyncpg://localhost/portfolio"))
+config.set_main_option("sqlalchemy.url", _fix_asyncpg_url(
+    os.getenv("DATABASE_URL", "postgresql+asyncpg://localhost/portfolio")
+))
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
